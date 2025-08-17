@@ -1,22 +1,24 @@
-# Modal/Drawer Pro (React + Vite)
+# Modal/Drawer Pro
+
+**Live:** https://a2rp.github.io/modal-pro/  
+**Repo:** https://github.com/a2rp/modal-pro
+
+## What is this?
 
 A single-feature React project showing an accessible **Modal** and **Drawer**, with localStorage save, confirm dialog, and toasts.
 
-## Live URL
+## Features
 
-https://a2rp.github.io/modal-pro
+-   Modal & Drawer (top/right/bottom/left)
+-   Close via ESC / backdrop / button
+-   Prevent background scroll
+-   Theming via styled-components
 
-## Quick Start (Clone → Install → Run)
+## Run locally
 
 ```bash
-# 1) Clone
-git clone https://github.com/a2rp/modal-pro.git
+git clone https://github.com/a2rp/modal-pro
 cd modal-pro
-
-# 2) Install
 npm i
-
-# 3) Dev server
 npm run dev
-# open the printed http://localhost:5173
 ```
