@@ -1,76 +1,32 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Overlay, DialogCard } from "./Styled.js";
 import Portal from "./Portal.jsx";
 import useScrollLock from "./useScrollLock.js";
 import { acquireZ } from "./ZStackManager.js";
+import { FiX } from "react-icons/fi";
 
-export default function Modal({
-    open,
-    onClose,
-    title = "Modal",
-    closeOnEsc = true,
-    closeOnBackdrop = true,
-    children,
-}) {
-    const cardRef = useRef(null);
-    const zRef = useRef({ z: 0, release: () => { } });
-
+export default function Modal({ open, onClose, title = "Modal", closeOnEsc = true, closeOnBackdrop = true, children, initialFocus }) {
+    const closeRef = useRef(null);
+    const [zIndex, setZIndex] = useState(1010);
     useScrollLock(open);
 
     useEffect(() => {
-        if (open) zRef.current = acquireZ();
-        return () => zRef.current.release();
+        if (!open) return undefined;
+        const stack = acquireZ();
+        setZIndex(stack.z);
+        return () => stack.release();
     }, [open]);
 
     useEffect(() => {
-        if (!open || !closeOnEsc) return;
-        const onKey = (e) => { if (e.key === "Escape") onClose?.(); };
-        window.addEventListener("keydown", onKey);
-        return () => window.removeEventListener("keydown", onKey);
-    }, [open, closeOnEsc, onClose]);
+        if (!open) return undefined;
+        const handleKey = (event) => { if (event.key === "Escape" && closeOnEsc) onClose?.(); };
+        window.addEventListener("keydown", handleKey);
+        const focusTarget = closeRef.current || initialFocus?.current;
+        focusTarget?.focus?.();
+        return () => window.removeEventListener("keydown", handleKey);
+    }, [open, closeOnEsc, onClose, initialFocus]);
 
     if (!open) return null;
 
-    return (
-        <Portal>
-            <Overlay
-                $z={zRef.current.z}
-                role="presentation"
-                onMouseDown={(e) => {
-                    if (!closeOnBackdrop) return;
-                    if (e.target === e.currentTarget) onClose?.();
-                }}
-            >
-                <div
-                    style={{
-                        display: "grid",
-                        placeItems: "center",
-                        minHeight: "100vh",
-                        padding: "16px",
-                    }}
-                >
-                    <DialogCard
-                        ref={cardRef}
-                        role="dialog"
-                        aria-modal="true"
-                        aria-label={typeof title === "string" ? title : undefined}
-                        onMouseDown={(e) => e.stopPropagation()}
-                    >
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
-                            <h3 style={{ margin: 0 }}>{title}</h3>
-                            <button aria-label="Close" onClick={onClose}>✕</button>
-                        </div>
-
-                        <div style={{ color: "var(--muted)" }}>
-                            {children}
-                        </div>
-
-                        <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 12 }}>
-                            <button onClick={onClose}>Close</button>
-                        </div>
-                    </DialogCard>
-                </div>
-            </Overlay>
-        </Portal>
-    );
+    return <Portal><Overlay $z={zIndex} role="presentation" onMouseDown={(event) => { if (closeOnBackdrop && event.target === event.currentTarget) onClose?.(); }}><div className="overlayCenter"><DialogCard role="dialog" aria-modal="true" aria-label={typeof title === "string" ? title : undefined} onMouseDown={(event) => event.stopPropagation()}><div className="dialogHeader"><h3>{title}</h3><button ref={closeRef} aria-label="Close modal" onClick={onClose}><FiX /></button></div><div className="dialogBody">{children}</div><div className="dialogFooter"><button onClick={onClose}>Close</button></div></DialogCard></div></Overlay></Portal>;
 }

@@ -18,13 +18,17 @@ export default function useLocalStorage(key, initialValue) {
         }
         try {
             localStorage.setItem(key, JSON.stringify(value));
-        } catch {}
+        } catch {
+            return;
+        }
     }, [key, value]);
 
     const clear = () => {
         try {
             localStorage.removeItem(key);
-        } catch {}
+        } catch {
+            return;
+        }
         setValue(initialValue);
     };
 

@@ -1,44 +1,38 @@
-# Modal/Drawer Pro
+# Modal Pro
 
-**Live:** https://a2rp.github.io/modal-pro/  
-**Repo:** https://github.com/a2rp/modal-pro
-
-## What is this?
-
-A single-feature React project showing an accessible **Modal** and **Drawer**, with localStorage save, confirm dialog, and toasts.
+A practical React playground for accessible modals and drawers. It demonstrates nested stacking, keyboard and backdrop close behavior, scroll locking, confirmation dialogs and localStorage profile CRUD.
 
 ## Features
 
--   Modal & Drawer (top/right/bottom/left)
--   Close via ESC / backdrop / button
--   Prevent background scroll
--   Theming via styled-components
+- Modal and drawer overlays with reusable controls
+- ESC, backdrop and button close behavior
+- Nested z-index handling and background scroll lock
+- Create, delete, clear and export saved profiles
+- Responsive fixed header, mobile menu, icon-only footer and go-top control
+
+## Tech stack
+
+- React and Vite
+- styled-components and CSS
+- React Icons
+- React Toastify
 
 ## Run locally
 
 ```bash
-git clone https://github.com/a2rp/modal-pro
-cd modal-pro
-npm i
+npm install
 npm run dev
 ```
 
-## Links
+## Deploy
 
-- Portfolio: [https://www.ashishranjan.net](https://www.ashishranjan.net)
-- GitHub: [https://github.com/a2rp](https://github.com/a2rp)
-- CodePen: [https://codepen.io/ash1198](https://codepen.io/ash1198)
-- LinkedIn: [https://www.linkedin.com/in/aashishranjan](https://www.linkedin.com/in/aashishranjan)
-- Facebook: [https://www.facebook.com/theash.ashish/](https://www.facebook.com/theash.ashish/)
-- YouTube: [https://www.youtube.com/@ashishranjan-ashz?sub_confirmation=1](https://www.youtube.com/@ashishranjan-ashz?sub_confirmation=1)
-- Email: [ash.ranjan09@gmail.com](mailto:ash.ranjan09@gmail.com)
+```bash
+npm run deploy
+```
 
-## Support
+## Screenshot
 
-- Support: [https://a2rp-donation-page.netlify.app/](https://a2rp-donation-page.netlify.app/)
-- Buy Me A Coffee: [https://buymeacoffee.com/a2rp](https://buymeacoffee.com/a2rp)
-- Patreon: [https://patreon.com/a2rp](https://patreon.com/a2rp)
-<!-- Project links -->
+![Modal Pro preview](screenshot.png)
 
 ## Links
 
@@ -56,4 +50,4 @@ npm run dev
 
 - Support: [https://a2rp-donation-page.netlify.app/](https://a2rp-donation-page.netlify.app/)
 - Buy Me a Coffee: [https://buymeacoffee.com/a2rp](https://buymeacoffee.com/a2rp)
-- Patreon: [https://www.patreon.com/a2rp](https://www.patreon.com/a2rp)
+- Patreon: [https://patreon.com/a2rp](https://patreon.com/a2rp)

@@ -2,36 +2,37 @@ import styled from "styled-components";
 
 export const Styled = {
     Wrapper: styled.div`
-        display: flex;
-        justify-content: center;
-        align-items: center;
+        width: min(1120px, 94vw);
+        margin: 0 auto;
+        padding: 20px 0 92px;
     `,
     Main: styled.div`
-        width: 100%;
-        max-width: 748px;
-        padding: 50px 15px;
+        max-width: 780px;
+        padding: clamp(20px, 4vw, 36px);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.025);
 
-        h1 {
-            margin-bottom: 15px;
+        h2 {
+            max-width: 680px;
+            margin: 8px 0 18px;
+            font-size: clamp(2rem, 5vw, 4.4rem);
+            line-height: 1;
+            letter-spacing: -0.06em;
         }
 
         h3 {
-            color: #fff;
+            margin-top: 32px;
+            color: var(--brand-2);
         }
 
-        p {
-            margin-bottom: 30px;
-
-            b {
-                color: orangered;
-                margin-top: 15px;
-                display: block;
-            }
+        p, li {
+            color: var(--muted);
+            line-height: 1.75;
         }
 
         ul {
-            margin-left: 15px;
-            margin-bottom: 30px;
+            padding-left: 20px;
         }
     `,
 };

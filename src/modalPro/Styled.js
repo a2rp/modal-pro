@@ -1,110 +1,85 @@
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
 
 const Shell = styled.div`
     min-height: 100vh;
+    padding: 42px 0 72px;
+`;
+
+const Content = styled.div`
+    width: min(1120px, 94vw);
     display: grid;
-    place-items: center;
-    padding: 28px;
+    gap: 18px;
+    margin: 0 auto;
 `;
 
 const Panel = styled.div`
-    width: min(920px, 96vw);
-    background: linear-gradient(
-        180deg,
-        rgba(255, 255, 255, 0.02),
-        rgba(255, 255, 255, 0.005)
-    );
+    width: 100%;
+    padding: clamp(18px, 3vw, 28px);
     border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 20px;
+    border-radius: 20px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.015));
+    box-shadow: 0 18px 55px rgba(0, 0, 0, 0.18);
+`;
+
+const Kicker = styled.span`
+    display: block;
+    color: var(--brand-2);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
 `;
 
 const Title = styled.h1`
-    margin: 6px 0 2px;
+    margin: 8px 0 5px;
+    color: var(--text);
+    font-size: clamp(1.8rem, 4vw, 3.8rem);
+    letter-spacing: -0.06em;
 `;
 
 const Sub = styled.div`
-    color: var(--muted);
-    margin: 0 0 16px;
     display: flex;
-    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 18px;
+    color: var(--muted);
+    line-height: 1.6;
 `;
 
 const Row = styled.div`
     display: flex;
-    gap: 10px;
     flex-wrap: wrap;
-    align-items: center;
-`;
-
-const fadeIn = keyframes`
-  from { opacity: 0 } to { opacity: 1 }
+    gap: 10px;
 `;
 
 export const Overlay = styled.div`
     position: fixed;
     inset: 0;
     z-index: ${({ $z }) => $z};
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(6px);
-    animation: ${fadeIn} 0.16s ease both;
+    background: rgba(0, 0, 0, 0.62);
+    backdrop-filter: blur(7px);
 `;
 
 export const DialogCard = styled.div`
     width: min(520px, 96vw);
-    background: var(--card);
+    padding: 22px;
     border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 18px;
+    border-radius: 18px;
     color: var(--text);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+    background: var(--card);
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.5);
 `;
 
 export const DrawerPanel = styled.div`
     position: fixed;
-    ${({ $side }) =>
-        $side === "left"
-            ? "left:0; top:0; bottom:0;"
-            : $side === "right"
-            ? "right:0; top:0; bottom:0;"
-            : $side === "top"
-            ? "top:0; left:0; right:0; height:auto;"
-            : "bottom:0; left:0; right:0; height:auto;"}
-    width: ${({ $side }) =>
-        $side === "left" || $side === "right" ? "min(420px, 96vw)" : "auto"};
-    height: ${({ $side }) =>
-        $side === "top" || $side === "bottom" ? "min(70vh, 96vh)" : "100%"};
-    background: var(--card);
+    ${({ $side }) => $side === "left" ? "left:0; top:0; bottom:0;" : $side === "right" ? "right:0; top:0; bottom:0;" : $side === "top" ? "top:0; left:0; right:0;" : "bottom:0; left:0; right:0;"}
+    width: ${({ $side }) => $side === "left" || $side === "right" ? "min(440px, 94vw)" : "auto"};
+    height: ${({ $side }) => $side === "top" || $side === "bottom" ? "min(72vh, 100%)" : "100%"};
+    padding: 22px;
     border: 1px solid var(--border);
-    ${({ $side }) =>
-        $side === "left"
-            ? "border-right: none"
-            : $side === "right"
-            ? "border-left: none"
-            : $side === "top"
-            ? "border-bottom: none"
-            : "border-top: none"};
-    border-radius: ${({ $side }) =>
-        $side === "left"
-            ? "0 12px 12px 0"
-            : $side === "right"
-            ? "12px 0 0 12px"
-            : $side === "top"
-            ? "0 0 12px 12px"
-            : "12px 12px 0 0"};
-    padding: 18px;
+    border-radius: ${({ $side }) => $side === "left" ? "0 18px 18px 0" : $side === "right" ? "18px 0 0 18px" : $side === "top" ? "0 0 18px 18px" : "18px 18px 0 0"};
     color: var(--text);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
-    transform: translate3d(
-        ${({ $side, $open }) => {
-            if ($open) return "0,0,0";
-            if ($side === "left") return "-100%,0,0";
-            if ($side === "right") return "100%,0,0";
-            if ($side === "top") return "0,-100%,0";
-            return "0,100%,0";
-        }}
-    );
-    transition: transform 0.2s ease;
+    background: var(--card);
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.5);
 `;
 
-export const Styled = { Shell, Panel, Title, Sub, Row };
+export const Styled = { Shell, Content, Panel, Kicker, Title, Sub, Row };
