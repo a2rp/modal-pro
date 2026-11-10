@@ -7,7 +7,10 @@ export default function useScrollLock(enabled) {
     useEffect(() => {
         if (!enabled) return undefined;
         const html = document.documentElement;
-        if (lockCount === 0) previousOverflow = html.style.overflow;
+        if (lockCount === 0) {
+            previousOverflow = html.style.overflow;
+            html.style.overflow = "hidden";
+        }
         lockCount += 1;
         html.classList.add("modalpro-lock");
         return () => {

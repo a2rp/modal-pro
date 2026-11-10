@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Styled } from "./Styled.js";
 import Modal from "./Modal.jsx";
 import Drawer from "./Drawer.jsx";
@@ -6,33 +6,50 @@ import useLocalStorage from "./useLocalStorage.js";
 import { toast } from "react-toastify";
 import { ConfirmProvider, useConfirm } from "./useConfirm.jsx";
 
+const timestampFormatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Asia/Kolkata",
+    month: "short",
+    day: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+});
+
+const normalizeEmail = (value) => value.trim().toLowerCase();
+const isProfile = (entry) =>
+    entry &&
+    typeof entry.id === "string" &&
+    typeof entry.name === "string" &&
+    typeof entry.email === "string" &&
+    Number.isFinite(entry.ts);
+const formatTimestamp = (timestamp) =>
+    timestampFormatter.format(new Date(timestamp));
+
 function ModalProInner() {
     const [modalOpen, setModalOpen] = useState(false);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
-    const [entries, setEntries, clearEntries] = useLocalStorage("modalpro:profiles", []);
-    const openerRef = useRef(null);
+    const [storedEntries, setEntries, clearEntries] = useLocalStorage("modalpro:profiles", []);
+    const entries = useMemo(
+        () => (Array.isArray(storedEntries) ? storedEntries.filter(isProfile) : []),
+        [storedEntries],
+    );
+    const nameInputRef = useRef(null);
     const confirm = useConfirm();
-
-    const normalizeEmail = (value) => value.trim().toLowerCase();
-    const fmt = (timestamp) => new Intl.DateTimeFormat("en-US", {
-        timeZone: "Asia/Kolkata",
-        month: "short",
-        day: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        second: "2-digit",
-        hour12: false,
-    }).format(new Date(timestamp));
 
     const stats = useMemo(() => ({
         total: entries.length,
-        latestAt: entries[0]?.ts ? fmt(entries[0].ts) : null,
+        latestAt: entries[0]?.ts ? formatTimestamp(entries[0].ts) : null,
     }), [entries]);
 
-    const handleSave = () => {
+    const closeProfileModal = useCallback(() => setModalOpen(false), []);
+    const closeDrawer = useCallback(() => setDrawerOpen(false), []);
+
+    const handleSave = (event) => {
+        event.preventDefault();
         const cleanName = name.trim();
         const cleanEmail = email.trim();
         if (!cleanName || !cleanEmail) {
@@ -49,7 +66,10 @@ function ModalProInner() {
             email: cleanEmail,
             ts: Date.now(),
         };
-        setEntries((previous) => [item, ...previous]);
+        setEntries((previous) => [
+            item,
+            ...(Array.isArray(previous) ? previous.filter(isProfile) : []),
+        ]);
         setModalOpen(false);
         setName("");
         setEmail("");
@@ -65,13 +85,20 @@ function ModalProInner() {
             tone: "danger",
         });
         if (confirmed) {
-            setEntries((previous) => previous.filter((entry) => entry.id !== id));
+            setEntries((previous) =>
+                (Array.isArray(previous) ? previous : []).filter(
+                    (entry) => isProfile(entry) && entry.id !== id,
+                ),
+            );
             toast.info("Profile deleted.");
         }
     };
 
     const onClearAll = async () => {
-        if (!entries.length) return;
+        if (!entries.length) {
+            clearEntries();
+            return;
+        }
         const confirmed = await confirm({
             title: "Clear all profiles?",
             body: <>This will remove <strong>{entries.length}</strong> profiles permanently.</>,
@@ -92,7 +119,19 @@ function ModalProInner() {
         link.href = url;
         link.download = "profiles.json";
         link.click();
-        URL.revokeObjectURL(url);
+        window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    };
+
+    const copyEntry = async (entry) => {
+        try {
+            if (!navigator.clipboard?.writeText) {
+                throw new Error("Clipboard access is unavailable.");
+            }
+            await navigator.clipboard.writeText(JSON.stringify(entry, null, 2));
+            toast.success("Copied JSON to clipboard.");
+        } catch {
+            toast.error("Clipboard access is unavailable in this browser.");
+        }
     };
 
     return (
@@ -101,29 +140,29 @@ function ModalProInner() {
                 <Styled.Panel>
                     <Styled.Kicker>INTERACTION PLAYGROUND</Styled.Kicker>
                     <Styled.Title>Modal and Drawer Pro</Styled.Title>
-                    <Styled.Sub>Accessible overlays with ESC and backdrop close, nested stacking, scroll lock and localStorage persistence.</Styled.Sub>
+                    <Styled.Sub>Accessible overlays with focus handling, nested stacking, scroll lock and browser-only profile storage.</Styled.Sub>
                     <Styled.Row>
-                        <button onClick={() => setModalOpen(true)} ref={openerRef}>Open Modal</button>
-                        <button onClick={() => setDrawerOpen(true)}>Open Drawer</button>
+                        <button type="button" onClick={() => setModalOpen(true)}>Open Modal</button>
+                        <button type="button" onClick={() => setDrawerOpen(true)}>Open Drawer</button>
                     </Styled.Row>
 
-                    <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Profile settings" initialFocus={openerRef}>
-                        <div className="formFields">
-                            <label className="field"><span>Display name</span><input type="text" placeholder="Ashish Ranjan" value={name} onChange={(event) => setName(event.target.value)} /></label>
-                            <label className="field"><span>Email</span><input type="email" placeholder="ashish@email.com" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
-                            <div className="formActions"><button onClick={() => setModalOpen(false)}>Cancel</button><button onClick={handleSave}>Save profile</button></div>
-                        </div>
+                    <Modal open={modalOpen} onClose={closeProfileModal} title="Profile settings" initialFocus={nameInputRef}>
+                        <form className="formFields" onSubmit={handleSave}>
+                            <label className="field"><span>Display name</span><input ref={nameInputRef} type="text" placeholder="Ashish Ranjan" autoComplete="name" required value={name} onChange={(event) => setName(event.target.value)} /></label>
+                            <label className="field"><span>Email</span><input type="email" placeholder="ashish@email.com" autoComplete="email" required value={email} onChange={(event) => setEmail(event.target.value)} /></label>
+                            <div className="formActions"><button type="button" onClick={closeProfileModal}>Cancel</button><button type="submit">Save profile</button></div>
+                        </form>
                     </Modal>
 
-                    <Drawer open={drawerOpen} onClose={() => setDrawerOpen(false)} side="right" title="Notifications">
+                    <Drawer open={drawerOpen} onClose={closeDrawer} side="right" title="Notifications">
                         <p className="badge">The drawer supports ESC and outside-click close.</p>
-                        <div className="drawerActions"><button onClick={() => setModalOpen(true)}>Open modal on top</button><button onClick={() => setDrawerOpen(false)}>Close drawer</button></div>
+                        <div className="drawerActions"><button type="button" onClick={() => setModalOpen(true)}>Open modal on top</button><button type="button" onClick={closeDrawer}>Close drawer</button></div>
                     </Drawer>
                 </Styled.Panel>
 
                 <Styled.Panel>
-                    <div className="panelHeader"><div><Styled.Kicker>LOCAL STORAGE CRUD</Styled.Kicker><Styled.Title>Saved profiles</Styled.Title><Styled.Sub>Total: <strong>{stats.total}</strong>{stats.latestAt ? <> <span className="separator">•</span> Latest at: <span className="badge">{stats.latestAt}</span></> : null}</Styled.Sub></div><div className="panelActions"><button onClick={onClearAll}>Clear all</button><button onClick={exportEntries}>Export JSON</button></div></div>
-                    {entries.length === 0 ? <div className="badge">No saved profiles yet. Use the modal to add one.</div> : <div className="tableWrap"><table className="table" aria-label="Saved profiles"><thead><tr><th>Index</th><th>Name</th><th>Email</th><th>Saved at</th><th>Actions</th></tr></thead><tbody>{entries.map((entry, index) => <tr key={entry.id}><td>{index + 1}.</td><td>{entry.name}</td><td>{entry.email}</td><td>{fmt(entry.ts)}</td><td><div className="actions"><button onClick={() => onDelete(entry.id, entry.name)}>Delete</button><button onClick={() => { navigator.clipboard?.writeText(JSON.stringify(entry, null, 2)); toast.info("Copied JSON to clipboard."); }}>Copy JSON</button></div></td></tr>)}</tbody></table></div>}
+                    <div className="panelHeader"><div><Styled.Kicker>LOCAL STORAGE CRUD</Styled.Kicker><Styled.Title>Saved profiles</Styled.Title><Styled.Sub>Total: <strong>{stats.total}</strong>{stats.latestAt ? <> <span className="separator">•</span> Latest at: <span className="badge">{stats.latestAt}</span></> : null}</Styled.Sub></div><div className="panelActions"><button type="button" onClick={onClearAll}>Clear all</button><button type="button" onClick={exportEntries} disabled={entries.length === 0}>Export JSON</button></div></div>
+                    {entries.length === 0 ? <div className="badge">No saved profiles yet. Use the modal to add one.</div> : <div className="tableWrap"><table className="table" aria-label="Saved profiles"><thead><tr><th>Index</th><th>Name</th><th>Email</th><th>Saved at</th><th>Actions</th></tr></thead><tbody>{entries.map((entry, index) => <tr key={entry.id}><td>{index + 1}.</td><td>{entry.name}</td><td>{entry.email}</td><td>{formatTimestamp(entry.ts)}</td><td><div className="actions"><button type="button" onClick={() => onDelete(entry.id, entry.name)}>Delete</button><button type="button" onClick={() => copyEntry(entry)}>Copy JSON</button></div></td></tr>)}</tbody></table></div>}
                 </Styled.Panel>
             </Styled.Content>
         </Styled.Shell>

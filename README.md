@@ -1,6 +1,6 @@
 # Modal Pro
 
-A practical React playground for accessible modals and drawers. It demonstrates nested stacking, keyboard and backdrop close behavior, scroll locking, confirmation dialogs and localStorage profile CRUD.
+Accessible React modal and drawer components with focus trapping, nested overlay stacking, scroll locking, confirmation dialogs and localStorage profile CRUD.
 
 ## Features
 
@@ -9,6 +9,10 @@ A practical React playground for accessible modals and drawers. It demonstrates 
 - Nested z-index handling and background scroll lock
 - Create, delete, clear and export saved profiles
 - Responsive fixed header, mobile menu, icon-only footer and go-top control
+
+## Profile data
+
+Names and email addresses stay in this browser's `localStorage`; the demo does not upload them to a server. Use sample data if you prefer not to store personal information in the browser. **Clear all** removes the saved entries, and **Export JSON** downloads a local copy.
 
 ## Tech stack
 

@@ -29,7 +29,7 @@
                             "globals":  "^16.0.0",
                             "vite":  "^6.3.5"
                         },
-    "description":  "A practical React modal and drawer playground with localStorage profile CRUD.",
+    "description":  "Accessible React modals and drawers with focus trapping, nested overlays, scroll locking, confirmations, and localStorage CRUD.",
     "homepage":  "https://a2rp.github.io/modal-pro/",
     "license":  "MIT"
 }

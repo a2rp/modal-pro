@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useRef, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import Modal from "./Modal.jsx";
 
 const ConfirmCtx = createContext(null);
@@ -9,16 +9,31 @@ export function ConfirmProvider({ children }) {
 
     const confirm = useCallback((options = {}) => {
         return new Promise((resolve) => {
+            resolverRef.current?.(false);
             resolverRef.current = resolve;
             setState({ open: true, options });
         });
     }, []);
 
-    const handleClose = (result) => {
-        resolverRef.current?.(result);
+    const handleClose = useCallback((result) => {
+        const resolver = resolverRef.current;
         resolverRef.current = () => { };
+        resolver?.(result);
         setState({ open: false, options: {} });
-    };
+    }, []);
+
+    const cancelConfirmation = useCallback(
+        () => handleClose(false),
+        [handleClose],
+    );
+
+    useEffect(
+        () => () => {
+            resolverRef.current?.(false);
+            resolverRef.current = () => { };
+        },
+        [],
+    );
 
     const {
         title = "Are you sure?",
@@ -34,7 +49,7 @@ export function ConfirmProvider({ children }) {
 
             <Modal
                 open={state.open}
-                onClose={() => handleClose(false)}
+                onClose={cancelConfirmation}
                 title={title}
                 closeOnEsc
                 closeOnBackdrop
@@ -48,8 +63,9 @@ export function ConfirmProvider({ children }) {
                 </div>
 
                 <div style={{ display: "flex", gap: 8, justifyContent: "flex-end", marginTop: 12 }}>
-                    <button onClick={() => handleClose(false)}>{cancelText}</button>
+                    <button type="button" onClick={() => handleClose(false)}>{cancelText}</button>
                     <button
+                        type="button"
                         onClick={() => handleClose(true)}
                         style={{
                             background: tone === "danger" ? "rgba(220,38,38,0.30)" : "rgba(255,255,255,0.06)",

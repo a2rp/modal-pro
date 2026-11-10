@@ -66,7 +66,7 @@ const App = () => {
                 </button>
             </header>
 
-            <main className="siteMain">
+            <main className="siteMain" tabIndex={-1}>
                 <section id="demo" aria-label="Modal and drawer demo"><ModalPro /></section>
                 <section id="about" aria-label="About this project"><About /></section>
             </main>
